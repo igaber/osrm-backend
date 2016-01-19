@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2013, Project OSRM contributors
+Copyright (c) 2016, Project OSRM contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -40,6 +40,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace osrm
 {
+
+namespace util
+{
+
 namespace json
 {
 
@@ -92,5 +96,13 @@ struct Array
 };
 
 } // namespace JSON
+} // namespace util
+
+namespace json
+{
+using namespace osrm::util::json;
+}
+
 } // namespace osrm
+
 #endif // JSON_CONTAINER_HPP

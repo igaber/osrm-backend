@@ -128,8 +128,12 @@ maxspeed_table = {
   ["uk:motorway"] = (70*1609)/1000
 }
 
+-- these need to be global because they are accesed externaly
+u_turn_penalty                  = 20
 traffic_signal_penalty          = 2
 use_turn_restrictions           = true
+
+side_road_speed_multiplier      = 0.8
 
 local turn_penalty              = 10
 -- Note: this biases right-side driving.  Should be
@@ -138,7 +142,6 @@ local turn_bias                 = 1.2
 
 local obey_oneway               = true
 local ignore_areas              = true
-local u_turn_penalty            = 20
 
 local abs = math.abs
 local min = math.min
@@ -310,6 +313,14 @@ function way_function (way, result)
     return
   end
 
+  -- reduce speed on special side roads
+  local sideway = way:get_value_by_key("side_road")
+  if "yes" == sideway or
+  "rotary" == sideway then
+    result.forward_speed = result.forward_speed * side_road_speed_multiplier
+    result.backward_speed = result.backward_speed * side_road_speed_multiplier
+  end
+
   -- reduce speed on bad surfaces
   local surface = way:get_value_by_key("surface")
   local tracktype = way:get_value_by_key("tracktype")
@@ -448,6 +459,9 @@ function way_function (way, result)
     end
     result.backward_speed = math.min(penalized_speed, scaled_speed)
   end
+
+  -- only allow this road as start point if it not a ferry
+  result.is_startpoint = result.forward_mode == mode_normal or result.backward_mode == mode_normal
 end
 
 function turn_function (angle)

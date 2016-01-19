@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2015, Project OSRM contributors
+Copyright (c) 2016, Project OSRM contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -32,10 +32,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <type_traits>
 
-namespace
+namespace osrm
 {
-constexpr static const float COORDINATE_PRECISION = 1000000.f;
-}
+
+constexpr static const double COORDINATE_PRECISION = 1000000.0;
+
+namespace util
+{
 
 struct FixedPointCoordinate
 {
@@ -55,17 +58,15 @@ struct FixedPointCoordinate
                       "coordinate types incompatible");
     }
 
-    bool is_valid() const;
+    bool IsValid() const;
     bool operator==(const FixedPointCoordinate &other) const;
-
-    float bearing(const FixedPointCoordinate &other) const;
-    void output(std::ostream &out) const;
+    friend std::ostream &operator<<(std::ostream &out, const FixedPointCoordinate &coordinate);
 };
 
-inline std::ostream &operator<<(std::ostream &out_stream, FixedPointCoordinate const &coordinate)
-{
-    coordinate.output(out_stream);
-    return out_stream;
+std::ostream &operator<<(std::ostream &out, const FixedPointCoordinate &coordinate);
+}
+
+using util::FixedPointCoordinate;
 }
 
 #endif /* COORDINATE_HPP_ */

@@ -93,6 +93,8 @@ Feature: Via points
             | 1,3,2     | ab,bc,cd,cd,de,ef,fa,ab,bc | 1600m +-1 | head,straight,straight,via,right,right,right,right,straight,destination |
             | 3,2,1     | cd,de,ef,fa,ab,bc,bc,cd,de,ef,fa,ab | 2400m +-1 | head,right,right,right,right,straight,via,straight,right,right,right,right,destination |
 
+    # TODO: Remove this ignore when https://github.com/Project-OSRM/osrm-backend/issues/1863 gets fixed
+    @ignore-platform-mac
     Scenario: Via points on ring on the same oneway
     # xa it to avoid only having a single ring, which cna trigger edge cases
         Given the node map
@@ -115,3 +117,48 @@ Feature: Via points
             | 1,2,3     | ab,ab                      | 200m +-1  | head,via,destination                                             |
             | 1,3,2     | ab,ab,bc,cd,da,ab          | 1100m +-1 | head,via,right,right,right,right,destination                     |
             | 3,2,1     | ab,bc,cd,da,ab,ab,bc,cd,da,ab | 1800m     | head,right,right,right,right,via,right,right,right,right,destination |
+
+
+    # See issue #1896
+    Scenario: Via point at a dead end with oneway
+        Given the node map
+            | a | b | c |
+            |   | d |   |
+            |   | e |   |
+
+        And the ways
+            | nodes | oneway |
+            | abc   |  no    |
+            | bd    |  no    |
+            | de    |  yes   |
+
+        When I route I should get
+            | waypoints | route            |
+            | a,d,c     | abc,bd,bd,bd,abc |
+            | c,d,a     | abc,bd,bd,bd,abc |
+
+    # See issue #1896
+    Scenario: Via point at a dead end with barrier
+        Given the profile "car"
+        Given the node map
+            | a | b | c |
+            |   | 1 |   |
+            |   | d |   |
+            |   |   |   |
+            |   |   |   |
+            | f | e |   |
+
+        And the nodes
+            | node | barrier |
+            | d    | bollard |
+
+        And the ways
+            | nodes |
+            | abc   |
+            | bd    |
+            | afed  |
+
+        When I route I should get
+            | waypoints | route            |
+            | a,1,c     | abc,bd,bd,bd,abc |
+            | c,1,a     | abc,bd,bd,bd,abc |
